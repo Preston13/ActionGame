@@ -5,6 +5,8 @@
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "GameFramework/SpringArmComponent.h"
+#include "Interfaces/Enemy.h"
 
 // Sets default values for this component's properties
 ULockonComponent::ULockonComponent()
@@ -25,6 +27,7 @@ void ULockonComponent::BeginPlay()
 	OwnerRef = GetOwner<ACharacter>();
 	Controller = GetWorld()->GetFirstPlayerController();
 	MovementComp = OwnerRef->GetCharacterMovement();
+	SpringArmComp = OwnerRef->FindComponentByClass<USpringArmComponent>();
 }
 
 void ULockonComponent::StartLockon(float Radius)
@@ -53,10 +56,43 @@ void ULockonComponent::StartLockon(float Radius)
 		return;
 	}
 
+	if (!OutResult.GetActor()->Implements<UEnemy>())
+	{
+		return;
+	}
+
 	CurrentTargetActor = OutResult.GetActor();
 	Controller->SetIgnoreLookInput(true);
 	MovementComp->bOrientRotationToMovement = false;
 	MovementComp->bUseControllerDesiredRotation = true;
+	SpringArmComp->TargetOffset = FVector{ 0.0, 0.0, 100.0 };
+
+	IEnemy::Execute_OnSelect(CurrentTargetActor);
+
+	OnUpdatedTargetDelegate.Broadcast(CurrentTargetActor);
+}
+
+void ULockonComponent::EndLockon()
+{
+	IEnemy::Execute_OnDeselect(CurrentTargetActor);
+	OnUpdatedTargetDelegate.Broadcast(CurrentTargetActor);
+	CurrentTargetActor = nullptr;
+	Controller->ResetIgnoreLookInput();
+	MovementComp->bOrientRotationToMovement = true;
+	MovementComp->bUseControllerDesiredRotation = false;
+	SpringArmComp->TargetOffset = FVector::ZeroVector;	
+}
+
+void ULockonComponent::ToggleLockon(float Radius)
+{
+	if (IsValid(CurrentTargetActor))
+	{
+		EndLockon();
+	}
+	else
+	{
+		StartLockon(Radius);
+	}
 }
 
 
@@ -69,8 +105,21 @@ void ULockonComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActo
 	{
 		FVector CurrentLocation = OwnerRef->GetActorLocation();
 		FVector TargetLocation = CurrentTargetActor->GetActorLocation();
+
+		// Check distance before lowering target location
+		double Distance = FVector::Distance(CurrentLocation, TargetLocation);
+
+		// Angle camera down
+		TargetLocation.Z -= 125;
+
 		FRotator LookAtRotation = UKismetMathLibrary::FindLookAtRotation(CurrentLocation, TargetLocation);
 		Controller->SetControlRotation(LookAtRotation);
+
+		
+		if (Distance > BreakDistance)
+		{
+			EndLockon();
+		}
 	}
 }
 
