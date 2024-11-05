@@ -12,9 +12,26 @@ class ACTIONCOMBAT_API UCombatComponent : public UActorComponent
 {
 	GENERATED_BODY()
 
+	UPROPERTY(EditAnywhere)
+	TArray<UAnimMontage*> AttackAnimations;
+
+	ACharacter* CharacterRef;
+
+	UPROPERTY(VisibleAnywhere)
+	int ComboCounter = 0;
+
+	UPROPERTY(VisibleAnywhere)
+	bool bCanAttack = true;
+
 public:	
 	// Sets default values for this component's properties
 	UCombatComponent();
+
+	UFUNCTION(BlueprintCallable)
+	void ComboAttack();
+
+	UFUNCTION(BlueprintCallable)
+	void HandleResetAttack();
 
 protected:
 	// Called when the game starts

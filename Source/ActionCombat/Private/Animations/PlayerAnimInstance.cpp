@@ -3,7 +3,29 @@
 
 #include "Animations/PlayerAnimInstance.h"
 
-void UPlayerAnimInstance::UpdateVelocity()
+void UPlayerAnimInstance::HandleUpdatedTarget(AActor* NewTargetActorRef)
+{
+	bIsInCombat = IsValid(NewTargetActorRef);
+}
+
+void UPlayerAnimInstance::UpdatedDirection()
+{
+	APawn* PawnRef = TryGetPawnOwner();
+
+	if (!IsValid(PawnRef)) 
+	{
+		return;
+	}
+
+	if (!bIsInCombat)
+	{
+		return;
+	}
+
+	CurrentDirection = CalculateDirection(PawnRef->GetVelocity(), PawnRef->GetActorRotation());
+}
+
+void UPlayerAnimInstance::UpdateSpeed()
 {
 	APawn* PawnRef = TryGetPawnOwner();
 
@@ -12,5 +34,5 @@ void UPlayerAnimInstance::UpdateVelocity()
 		return;
 	}
 
-	CurrentVelocity = static_cast<float>(PawnRef->GetVelocity().Length());
+	CurrentSpeed = static_cast<float>(PawnRef->GetVelocity().Length());
 }

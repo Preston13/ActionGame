@@ -14,12 +14,19 @@ class ACTIONCOMBAT_API UPlayerAnimInstance : public UAnimInstance
 {
 	GENERATED_BODY()
 
-protected:
-	UPROPERTY(BlueprintReadWrite, EditAnywhere)
-	float CurrentVelocity = 0.0f;
+public:
+	UFUNCTION(BlueprintCallable)
+	void HandleUpdatedTarget(AActor* NewTargetActorRef);
 
 	UFUNCTION(BlueprintCallable)
-	void UpdateVelocity();
+	void UpdatedDirection();
+
+protected:
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+	float CurrentSpeed = 0.0f;
+
+	UFUNCTION(BlueprintCallable)
+	void UpdateSpeed();
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
 	bool bIsInCombat = false;

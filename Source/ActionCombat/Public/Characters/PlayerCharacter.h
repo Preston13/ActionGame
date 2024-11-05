@@ -5,10 +5,11 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "Interfaces/MainPlayer.h"
+#include "Interfaces/Fighter.h"
 #include "PlayerCharacter.generated.h"
 
 UCLASS()
-class ACTIONCOMBAT_API APlayerCharacter : public ACharacter, public IMainPlayer
+class ACTIONCOMBAT_API APlayerCharacter : public ACharacter, public IMainPlayer, public IFighter
 {
 	GENERATED_BODY()
 
@@ -20,6 +21,9 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
+	UPROPERTY(BlueprintReadOnly)
+	class UPlayerAnimInstance* PlayerAnim;
+
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
@@ -27,4 +31,5 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
+	virtual float GetDamage() override;
 };
