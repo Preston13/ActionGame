@@ -2,6 +2,9 @@
 
 
 #include "Characters/PlayerActionsComponent.h"
+#include "GameFramework/Character.h"
+#include "Interfaces/MainPlayer.h"
+#include "GameFramework/CharacterMovementComponent.h"
 
 // Sets default values for this component's properties
 UPlayerActionsComponent::UPlayerActionsComponent()
@@ -10,7 +13,18 @@ UPlayerActionsComponent::UPlayerActionsComponent()
 	// off to improve performance if you don't need them.
 	PrimaryComponentTick.bCanEverTick = true;
 
-	// ...
+	CharacterRef = GetOwner<ACharacter>();
+
+	if (!IsValid(CharacterRef))
+	{
+		return;
+	}
+	MovementComp = CharacterRef->GetCharacterMovement();
+
+	if (CharacterRef->Implements<UMainPlayer>())
+	{
+		IPlayerRef = Cast<IMainPlayer>(CharacterRef);
+	}
 }
 
 
@@ -19,7 +33,7 @@ void UPlayerActionsComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
-	// ...
+	MovementComp->MaxWalkSpeed = WalkSpeed;
 	
 }
 
@@ -30,5 +44,28 @@ void UPlayerActionsComponent::TickComponent(float DeltaTime, ELevelTick TickType
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
 	// ...
+}
+
+void UPlayerActionsComponent::Sprint()
+{
+	if (!IPlayerRef->HasEnoughStamina(SprintCost))
+	{
+		Walk();
+		return;
+	}
+
+	if (MovementComp->Velocity.Equals(FVector::ZeroVector, 1))
+	{
+		return;
+	}
+
+	MovementComp->MaxWalkSpeed = SprintSpeed;
+
+	OnSprintDelegate.Broadcast(SprintCost);
+}
+
+void UPlayerActionsComponent::Walk()
+{
+	MovementComp->MaxWalkSpeed = WalkSpeed;
 }
 

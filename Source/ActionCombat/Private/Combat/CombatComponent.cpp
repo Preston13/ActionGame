@@ -4,6 +4,8 @@
 #include "Combat/CombatComponent.h"
 #include "GameFramework/Character.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "Kismet/KismetSystemLibrary.h"
+#include "Interfaces/MainPlayer.h"
 
 // Sets default values for this component's properties
 UCombatComponent::UCombatComponent()
@@ -21,6 +23,16 @@ void UCombatComponent::ComboAttack()
 	{
 		return;
 	}
+
+	if (CharacterRef->Implements<UMainPlayer>())
+	{
+		IMainPlayer* IPlayerRef = Cast<IMainPlayer>(CharacterRef);
+
+		if (IPlayerRef && !IPlayerRef->HasEnoughStamina(AttackStaminaCost))
+		{
+			return;
+		}
+	}
 	
 	bCanAttack = false;
 
@@ -30,6 +42,16 @@ void UCombatComponent::ComboAttack()
 	int MaxCombo = AttackAnimations.Num();
 
 	ComboCounter = UKismetMathLibrary::Wrap(ComboCounter, -1, MaxCombo - 1);
+
+	OnAttackPerformedDelegate.Broadcast(AttackStaminaCost);
+
+	FLatentActionInfo FunctionInfo{
+		0,
+		101,
+		TEXT("ResetComboCounter"),
+		this
+	};
+	UKismetSystemLibrary::RetriggerableDelay(GetWorld(), ResetComboDelay, FunctionInfo);
 }
 
 void UCombatComponent::HandleResetAttack()
@@ -37,6 +59,11 @@ void UCombatComponent::HandleResetAttack()
 	bCanAttack = true;
 }
 
+
+void UCombatComponent::ResetComboCounter()
+{
+	ComboCounter = 0;
+}
 
 // Called when the game starts
 void UCombatComponent::BeginPlay()
