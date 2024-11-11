@@ -50,3 +50,8 @@ void ABossCharacter::DetectPawn(APawn* PawnDetected, APawn* TargetPawn)
 	BlackboardComp->SetValueAsEnum(TEXT("CurrentState"), EEnemyState::Range);
 }
 
+float ABossCharacter::GetDamage()
+{
+	return StatsComp->Stats[EStat::Strength];
+}
+

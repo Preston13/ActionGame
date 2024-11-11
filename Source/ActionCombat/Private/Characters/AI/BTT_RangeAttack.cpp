@@ -5,6 +5,8 @@
 #include "AIController.h"
 #include "GameFramework/Character.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "BehaviorTree/BlackboardComponent.h"
+#include "Characters/EEnemyState.h"
 
 EBTNodeResult::Type UBTT_RangeAttack::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
 {
@@ -15,6 +17,13 @@ EBTNodeResult::Type UBTT_RangeAttack::ExecuteTask(UBehaviorTreeComponent& OwnerC
 		return EBTNodeResult::Failed;
 	}
 
+	if (OwnerComp.GetBlackboardComponent()->GetValueAsFloat(TEXT("Distance")) < MeleeDistance)
+	{
+		OwnerComp.GetBlackboardComponent()->SetValueAsEnum(TEXT("CurrentState"), EEnemyState::Melee);
+		AbortTask(OwnerComp, NodeMemory);
+		return EBTNodeResult::Aborted;
+	}
+
 	CharacterRef->PlayAnimMontage(AnimMontage);
 
 	double RandomValue = UKismetMathLibrary::RandomFloat();
@@ -22,7 +31,8 @@ EBTNodeResult::Type UBTT_RangeAttack::ExecuteTask(UBehaviorTreeComponent& OwnerC
 	if (RandomValue > Threshold)
 	{
 		Threshold = 0.9;
-		UE_LOG(LogTemp, Warning, TEXT("Chaaaaaarge!"));
+		
+		OwnerComp.GetBlackboardComponent()->SetValueAsEnum(TEXT("CurrentState"), EEnemyState::Charge);
 	}
 	else 
 	{
