@@ -26,6 +26,9 @@ public:
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
 	class UStatsComponent* StatsComp;
 
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+	class UCombatComponent* CombatComp;
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -41,5 +44,13 @@ public:
 	void DetectPawn(APawn* PawnDetected, APawn* TargetPawn);
 
 	virtual float GetDamage() override;
+
+	virtual void Attack() override;
+
+	virtual float GetAnimationDuration() override;
+
+	virtual float GetMeleeRange() override;
+
+	virtual float GetIdleRange() override;
 
 };

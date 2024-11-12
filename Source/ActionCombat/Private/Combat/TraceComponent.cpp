@@ -6,6 +6,7 @@
 #include "Kismet/KismetMathLibrary.h"
 #include "Math/Color.h"
 #include "Interfaces/Fighter.h"
+#include "Interfaces/MainPlayer.h"
 
 
 // Sets default values for this component's properties
@@ -48,7 +49,17 @@ void UTraceComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActor
 		FQuat ShapeRotation = SkeletalComp->GetSocketQuaternion(Socket.Rotation);
 
 		float BoxCollisionLength = FVector::Distance(StartSocketLocation, EndSocketLocation);
-		FVector BoxCollisionSize = FVector(BoxCollisionLength, BoxCollisionHeight, BoxCollisionWidth);
+		IMainPlayer* MainPlayerRef = Cast<IMainPlayer>(GetOwner());
+
+		FVector BoxCollisionSize = FVector::ZeroVector;
+		if (MainPlayerRef)	//Player character model's socket rotation messes up the rotation, so calculate box size differently
+		{
+			BoxCollisionSize = FVector(BoxCollisionHeight, BoxCollisionLength, BoxCollisionWidth);
+		}
+		else
+		{
+			BoxCollisionSize = FVector(BoxCollisionHeight, BoxCollisionWidth, BoxCollisionLength);
+		}
 		BoxCollisionSize /= 2;
 		FCollisionShape Box = FCollisionShape::MakeBox(BoxCollisionSize);
 		TArray<FHitResult> OutResults;

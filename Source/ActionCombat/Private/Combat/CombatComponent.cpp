@@ -65,6 +65,12 @@ void UCombatComponent::ResetComboCounter()
 	ComboCounter = 0;
 }
 
+void UCombatComponent::RandomAttack()
+{
+	int RandomIndex = FMath::RandRange(0, AttackAnimations.Num() - 1);
+	AnimDuration = CharacterRef->PlayAnimMontage(AttackAnimations[RandomIndex]);
+}
+
 // Called when the game starts
 void UCombatComponent::BeginPlay()
 {

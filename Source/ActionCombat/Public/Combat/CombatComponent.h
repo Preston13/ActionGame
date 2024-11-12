@@ -52,6 +52,10 @@ public:
 	UFUNCTION()
 	void ResetComboCounter();
 
+	void RandomAttack();
+
+	float AnimDuration;
+
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
