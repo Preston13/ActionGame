@@ -29,6 +29,9 @@ class ACTIONCOMBAT_API UTraceComponent : public UActorComponent
 
 	TArray<AActor*> TargetsToIgnore;
 
+	UPROPERTY(EditAnywhere)
+	UParticleSystem* HitParticlesTemplate;
+
 public:	
 	// Sets default values for this component's properties
 	UTraceComponent();

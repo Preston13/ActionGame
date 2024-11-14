@@ -13,6 +13,12 @@ class ACTIONCOMBAT_API APlayerCharacter : public ACharacter, public IMainPlayer,
 {
 	GENERATED_BODY()
 
+	UPROPERTY(EditAnywhere)
+	UAnimMontage* DeathAnimMontage;
+
+	UPROPERTY(EditAnywhere)
+	UAnimMontage* HurtAnimMontage;
+
 public:
 	// Sets default values for this character's properties
 	APlayerCharacter();
@@ -35,12 +41,15 @@ public:
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
 	class UPlayerActionsComponent* PlayerActionsComp;
 
+	UPROPERTY(BlueprintReadOnly)
+	class UPlayerAnimInstance* PlayerAnim;
+
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
-	UPROPERTY(BlueprintReadOnly)
-	class UPlayerAnimInstance* PlayerAnim;
+
 
 public:	
 	// Called every frame
@@ -52,4 +61,20 @@ public:
 	virtual float GetDamage() override;
 
 	virtual bool HasEnoughStamina(float StaminaCost) override;
+
+	virtual void UpdateIsInAir(bool IsInAir) override;
+
+	UFUNCTION(BlueprintCallable)
+	void HandleDeath();
+
+	virtual void EndLockonWithActor(AActor* ActorRef) override;
+
+	virtual bool CanTakeDamage(AActor* Opponent) override;
+	
+	UFUNCTION(BlueprintCallable)
+	void PlayHurtAnim(TSubclassOf<UCameraShakeBase> CameraShakeTemplate);
+
+	virtual bool GetIsBlocking() override;
+
+	void StopCasting();
 };

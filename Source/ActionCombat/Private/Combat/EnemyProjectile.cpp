@@ -34,7 +34,7 @@ void AEnemyProjectile::HandleBeginOverlap(AActor* OtherActor)
 {
 	APawn* PawnRef = Cast<APawn>(OtherActor);
 
-	if (!PawnRef->IsPlayerControlled())
+	if ((!PawnRef->IsPlayerControlled() && !bIsPlayerProjectile) || (PawnRef->IsPlayerControlled() && bIsPlayerProjectile))
 	{
 		return;
 	}

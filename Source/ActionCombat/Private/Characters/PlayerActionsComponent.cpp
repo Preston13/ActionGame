@@ -5,6 +5,8 @@
 #include "GameFramework/Character.h"
 #include "Interfaces/MainPlayer.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Characters/PlayerCharacter.h"
+#include "Kismet/KismetMathLibrary.h"
 
 // Sets default values for this component's properties
 UPlayerActionsComponent::UPlayerActionsComponent()
@@ -43,7 +45,12 @@ void UPlayerActionsComponent::TickComponent(float DeltaTime, ELevelTick TickType
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	// ...
+	APlayerCharacter* PlayerCharacterRef = Cast<APlayerCharacter>(CharacterRef);
+	if (!PlayerCharacterRef)
+	{
+		return;
+	}
+	PlayerCharacterRef->UpdateIsInAir(MovementComp->IsFalling());
 }
 
 void UPlayerActionsComponent::Sprint()
@@ -67,5 +74,31 @@ void UPlayerActionsComponent::Sprint()
 void UPlayerActionsComponent::Walk()
 {
 	MovementComp->MaxWalkSpeed = WalkSpeed;
+}
+
+void UPlayerActionsComponent::Dodge()
+{
+	if (bIsDodgeActive || !IPlayerRef->HasEnoughStamina(DodgeCost))
+	{
+		return;
+	}
+
+	bIsDodgeActive = true;
+
+	OnDodgeDelegate.Broadcast(DodgeCost);
+
+	FVector Direction = CharacterRef->GetCharacterMovement()->Velocity.Length() < 1 ? CharacterRef->GetActorForwardVector() : CharacterRef->GetLastMovementInputVector();
+	FRotator NewRot = UKismetMathLibrary::MakeRotFromX(Direction);
+
+	CharacterRef->SetActorRotation(NewRot);
+	float Duration = CharacterRef->PlayAnimMontage(DodgeAnimMontage);
+
+	FTimerHandle DodgeTimerHandle;
+	CharacterRef->GetWorldTimerManager().SetTimer(DodgeTimerHandle, this, &UPlayerActionsComponent::FinishDodgeAnim, Duration, false);
+}
+
+void UPlayerActionsComponent::FinishDodgeAnim()
+{
+	bIsDodgeActive = false;
 }
 

@@ -4,11 +4,12 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
+#include "Interfaces/Projectile.h"
 #include "EnemyProjectileComponent.generated.h"
 
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
-class ACTIONCOMBAT_API UEnemyProjectileComponent : public UActorComponent
+class ACTIONCOMBAT_API UEnemyProjectileComponent : public UActorComponent, public IProjectile
 {
 	GENERATED_BODY()
 
@@ -25,6 +26,6 @@ public:
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 	UFUNCTION(BlueprintCallable)
-	void SpawnProjectile(FName ComponentName, TSubclassOf<AActor> ProjectileClass);
+	virtual void SpawnProjectile(FName ComponentName, TSubclassOf<AActor> ProjectileClass) override;
 		
 };

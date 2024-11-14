@@ -14,6 +14,14 @@ DECLARE_DYNAMIC_MULTICAST_SPARSE_DELEGATE_OneParam(
 	SprintCost
 );
 
+DECLARE_DYNAMIC_MULTICAST_SPARSE_DELEGATE_OneParam(
+	FOnDodgeSignature,
+	UPlayerActionsComponent,
+	OnDodgeDelegate,
+	float,
+	DodgeCost
+);
+
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class ACTIONCOMBAT_API UPlayerActionsComponent : public UActorComponent
 {
@@ -34,9 +42,24 @@ class ACTIONCOMBAT_API UPlayerActionsComponent : public UActorComponent
 	UPROPERTY(EditAnywhere)
 	float WalkSpeed = 500.0f;
 
+	UPROPERTY(EditAnywhere)
+	UAnimMontage* DodgeAnimMontage;
+
+	UPROPERTY(EditAnywhere)
+	float DodgeCost = 5.0f;
+
 public:	
 	// Sets default values for this component's properties
 	UPlayerActionsComponent();
+
+	UPROPERTY(BlueprintAssignable)
+	FOnSprintSignature OnSprintDelegate;
+
+	UPROPERTY(BlueprintAssignable)
+	FOnDodgeSignature OnDodgeDelegate;
+
+	UPROPERTY(VisibleAnywhere)
+	bool bIsDodgeActive = false;
 
 protected:
 	// Called when the game starts
@@ -52,7 +75,10 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void Walk();
 
-	UPROPERTY(BlueprintAssignable)
-	FOnSprintSignature OnSprintDelegate;
+	UFUNCTION(BlueprintCallable)
+	void Dodge();
+
+	UFUNCTION()
+	void FinishDodgeAnim();
 		
 };

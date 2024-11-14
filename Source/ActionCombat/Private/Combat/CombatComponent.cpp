@@ -71,6 +71,36 @@ void UCombatComponent::RandomAttack()
 	AnimDuration = CharacterRef->PlayAnimMontage(AttackAnimations[RandomIndex]);
 }
 
+void UCombatComponent::CastSpellAttack()
+{
+	if (!bCanAttack)
+	{
+		return;
+	}
+
+	if (CharacterRef->Implements<UMainPlayer>())
+	{
+		IMainPlayer* IPlayerRef = Cast<IMainPlayer>(CharacterRef);
+
+		if (IPlayerRef && !IPlayerRef->HasEnoughStamina(AttackStaminaCost))
+		{
+			return;
+		}
+	}
+
+	bCanAttack = false;
+
+	float Duration = CharacterRef->PlayAnimMontage(CastAnimation);
+
+	FTimerHandle CastTimerHandle;
+	CharacterRef->GetWorldTimerManager().SetTimer(CastTimerHandle, this, &UCombatComponent::StopCasting, Duration, false);
+}
+
+void UCombatComponent::StopCasting()
+{
+	bCanAttack = true;
+}
+
 // Called when the game starts
 void UCombatComponent::BeginPlay()
 {

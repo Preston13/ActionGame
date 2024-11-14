@@ -10,6 +10,7 @@
 #include "Combat/TraceComponent.h"
 #include "Combat/BlockComponent.h"
 #include "Characters/PlayerActionsComponent.h"
+#include "GameFramework/CharacterMovementComponent.h"
 
 // Sets default values
 APlayerCharacter::APlayerCharacter()
@@ -37,7 +38,7 @@ void APlayerCharacter::BeginPlay()
 void APlayerCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
+	
 }
 
 // Called to bind functionality to input
@@ -55,5 +56,59 @@ float APlayerCharacter::GetDamage()
 bool APlayerCharacter::HasEnoughStamina(float StaminaCost)
 {
 	return StaminaCost <= StatsComp->Stats[EStat::Stamina];
+}
+
+void APlayerCharacter::UpdateIsInAir(bool IsInAir)
+{
+	PlayerAnim->bIsInAir = IsInAir;
+}
+
+void APlayerCharacter::HandleDeath()
+{
+	PlayAnimMontage(DeathAnimMontage);
+	DisableInput(GetController<APlayerController>());
+}
+
+void APlayerCharacter::EndLockonWithActor(AActor* ActorRef)
+{
+	if (ActorRef != LockonComp->CurrentTargetActor)
+	{
+		return;
+	}
+
+	LockonComp->EndLockon();
+}
+
+bool APlayerCharacter::CanTakeDamage(AActor* Opponent)
+{
+	if (PlayerActionsComp->bIsDodgeActive)
+	{
+		return false;
+	}
+	if (PlayerAnim->bIsBlocking)
+	{
+		return BlockComp->Check(Opponent);
+	}
+	return true;
+}
+
+void APlayerCharacter::PlayHurtAnim(TSubclassOf<UCameraShakeBase> CameraShakeTemplate)
+{
+	PlayAnimMontage(HurtAnimMontage);
+
+	if (CameraShakeTemplate)
+	{
+		GetController<APlayerController>()->ClientStartCameraShake(CameraShakeTemplate);
+	}
+}
+
+bool APlayerCharacter::GetIsBlocking()
+{
+	return PlayerAnim->bIsBlocking;
+}
+
+void APlayerCharacter::StopCasting()
+{
+	PlayerAnim->bIsCasting = false;
 }
 

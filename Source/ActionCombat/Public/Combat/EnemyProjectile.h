@@ -16,6 +16,9 @@ class ACTIONCOMBAT_API AEnemyProjectile : public AActor
 
 	UPROPERTY(EditAnywhere)
 	float Damage = 10.0f;
+
+	UPROPERTY(EditAnywhere)
+	bool bIsPlayerProjectile = false;
 	
 public:	
 	// Sets default values for this actor's properties

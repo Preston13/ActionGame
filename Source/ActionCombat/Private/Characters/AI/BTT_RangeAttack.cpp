@@ -29,6 +29,7 @@ EBTNodeResult::Type UBTT_RangeAttack::ExecuteTask(UBehaviorTreeComponent& OwnerC
 	else if (Distance > FighterRef->GetIdleRange())
 	{
 		OwnerComp.GetBlackboardComponent()->SetValueAsEnum(TEXT("CurrentState"), EEnemyState::Idle);
+		FighterRef->LeaveCombat();
 		AbortTask(OwnerComp, NodeMemory);
 		return EBTNodeResult::Aborted;
 	}

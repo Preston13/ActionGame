@@ -21,6 +21,22 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void UpdatedDirection();
 
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+	bool bIsJumping = false;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+	bool bIsInAir = false;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+	bool bIsBlocking = false;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+	bool bIsInCombat = false;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+	bool bIsCasting = false;
+
+
 protected:
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
 	float CurrentSpeed = 0.0f;
@@ -29,9 +45,6 @@ protected:
 	void UpdateSpeed();
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
-	bool bIsInCombat = false;
-
-	UPROPERTY(BlueprintReadWrite, EditAnywhere)
-	float CurrentDirection = 0.0f;
+	float CurrentDirection = 0.0f;	
 	
 };

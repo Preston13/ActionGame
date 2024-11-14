@@ -22,6 +22,9 @@ class ACTIONCOMBAT_API UCombatComponent : public UActorComponent
 	UPROPERTY(EditAnywhere)
 	TArray<UAnimMontage*> AttackAnimations;
 
+	UPROPERTY(EditAnywhere)
+	UAnimMontage* CastAnimation;
+
 	ACharacter* CharacterRef;
 
 	UPROPERTY(VisibleAnywhere)
@@ -55,6 +58,12 @@ public:
 	void RandomAttack();
 
 	float AnimDuration;
+
+	UFUNCTION(BlueprintCallable)
+	void CastSpellAttack();
+
+	UFUNCTION()
+	void StopCasting();
 
 protected:
 	// Called when the game starts

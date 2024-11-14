@@ -7,6 +7,27 @@
 #include "Characters/EStat.h"
 #include "StatsComponent.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_SPARSE_DELEGATE_OneParam(
+	FOnHealthPercentUpdateSignature,
+	UStatsComponent, OnHealthPercentUpdateDelegate,
+	float, Percentage
+);
+
+DECLARE_DYNAMIC_MULTICAST_SPARSE_DELEGATE_OneParam(
+	FOnStaminaPercentUpdateSignature,
+	UStatsComponent, OnStaminaPercentUpdateDelegate,
+	float, Percentage
+);
+
+DECLARE_DYNAMIC_MULTICAST_SPARSE_DELEGATE(
+	FOnZeroHealthSignature,
+	UStatsComponent, OnZeroHealthDelegate
+);
+
+DECLARE_DYNAMIC_MULTICAST_SPARSE_DELEGATE(
+	FOnLeaveCombatSignature,
+	UStatsComponent, OnLeaveCombatDelegate
+);
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class ACTIONCOMBAT_API UStatsComponent : public UActorComponent
@@ -30,6 +51,18 @@ public:
 	UPROPERTY(EditAnywhere)
 	TMap<TEnumAsByte<EStat>, float> Stats;
 
+	UPROPERTY(BlueprintAssignable)
+	FOnHealthPercentUpdateSignature OnHealthPercentUpdateDelegate;
+
+	UPROPERTY(BlueprintAssignable)
+	FOnStaminaPercentUpdateSignature OnStaminaPercentUpdateDelegate;
+
+	UPROPERTY(BlueprintAssignable)
+	FOnZeroHealthSignature OnZeroHealthDelegate;
+
+	UPROPERTY(BlueprintAssignable)
+	FOnLeaveCombatSignature OnLeaveCombatDelegate;
+
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
@@ -39,7 +72,7 @@ public:
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 	UFUNCTION(BlueprintCallable)
-	void ReduceHealth(float Damage);
+	void ReduceHealth(float Damage, AActor* Opponent);
 
 	UFUNCTION(BlueprintCallable)
 	void ReduceStamina(float Amount);
@@ -49,5 +82,11 @@ public:
 
 	UFUNCTION()
 	void EnableRegen();
+
+	UFUNCTION(BlueprintPure)
+	float GetStatPercentage(EStat Current, EStat Max);
+
+	UFUNCTION()
+	void LeaveCombat();
 		
 };

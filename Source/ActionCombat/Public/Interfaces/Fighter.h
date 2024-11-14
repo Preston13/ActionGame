@@ -31,4 +31,8 @@ public:
 	virtual float GetMeleeRange() { return 0.0f; }
 
 	virtual float GetIdleRange() { return 0.0f; }
+
+	virtual bool CanTakeDamage(AActor* Opponent) { return true; }
+
+	virtual void LeaveCombat() {}
 };

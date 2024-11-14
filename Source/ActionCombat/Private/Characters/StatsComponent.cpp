@@ -4,6 +4,7 @@
 #include "Characters/StatsComponent.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Kismet/KismetSystemLibrary.h"
+#include "Interfaces/Fighter.h"
 
 // Sets default values for this component's properties
 UStatsComponent::UStatsComponent()
@@ -33,14 +34,28 @@ void UStatsComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActor
 	// ...
 }
 
-void UStatsComponent::ReduceHealth(float Damage)
+void UStatsComponent::ReduceHealth(float Damage, AActor* Opponent)
 {
 	if (Stats[EStat::Health] <= 0)
 	{
 		return;
 	}
 
+	IFighter* FighterRef = GetOwner<IFighter>();
+
+	if (!FighterRef->CanTakeDamage(Opponent))
+	{
+		return;
+	}
+
 	Stats[EStat::Health] = UKismetMathLibrary::FClamp(Stats[EStat::Health] - Damage, 0.0, Stats[EStat::MaxHealth]);
+
+	OnHealthPercentUpdateDelegate.Broadcast(GetStatPercentage(EStat::Health, EStat::MaxHealth ));
+
+	if (Stats[EStat::Health] <= 0)
+	{
+		OnZeroHealthDelegate.Broadcast();
+	}
 }
 
 void UStatsComponent::ReduceStamina(float Amount)
@@ -56,6 +71,8 @@ void UStatsComponent::ReduceStamina(float Amount)
 		this
 	};
 	UKismetSystemLibrary::RetriggerableDelay(GetWorld(), StaminaDelayDuration, FunctionInfo);
+
+	OnStaminaPercentUpdateDelegate.Broadcast(GetStatPercentage(EStat::Stamina, EStat::MaxStamina));
 }
 
 void UStatsComponent::RegenStamina()
@@ -66,10 +83,22 @@ void UStatsComponent::RegenStamina()
 	}
 
 	Stats[EStat::Stamina] = UKismetMathLibrary::FInterpTo_Constant(Stats[EStat::Stamina], Stats[EStat::MaxStamina], GetWorld()->DeltaTimeSeconds, StaminaRegenRate);
+
+	OnStaminaPercentUpdateDelegate.Broadcast(GetStatPercentage(EStat::Stamina, EStat::MaxStamina));
 }
 
 void UStatsComponent::EnableRegen()
 {
 	bCanRegen = true;
+}
+
+float UStatsComponent::GetStatPercentage(EStat Current, EStat Max)
+{
+	return Stats[Current] / Stats[Max];
+}
+
+void UStatsComponent::LeaveCombat()
+{
+	OnLeaveCombatDelegate.Broadcast();
 }
 

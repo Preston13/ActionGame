@@ -7,6 +7,8 @@
 #include "Math/Color.h"
 #include "Interfaces/Fighter.h"
 #include "Interfaces/MainPlayer.h"
+#include "Kismet/GameplayStatics.h"
+#include "Combat/BlockComponent.h"
 
 
 // Sets default values for this component's properties
@@ -116,12 +118,18 @@ void UTraceComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActor
 	for (const FHitResult& Hit : AllResults)
 	{
 		AActor* TargetActor = Hit.GetActor();
+		UBlockComponent* BlockComp = TargetActor->GetComponentByClass<UBlockComponent>();
 
 		if (!TargetsToIgnore.Contains(TargetActor))
 		{
 			TargetActor->TakeDamage(CharacterDamage, TargetAttackedEvent, GetOwner()->GetInstigatorController(), GetOwner());
 
 			TargetsToIgnore.Add(TargetActor);
+
+			if (BlockComp->Check(GetOwner<AActor>()))
+			{
+				UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), HitParticlesTemplate, Hit.ImpactPoint);
+			}
 		}
 	}
 }
