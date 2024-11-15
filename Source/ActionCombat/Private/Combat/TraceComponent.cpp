@@ -120,13 +120,23 @@ void UTraceComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActor
 		AActor* TargetActor = Hit.GetActor();
 		UBlockComponent* BlockComp = TargetActor->GetComponentByClass<UBlockComponent>();
 
+		//Enemies can't attack other enemies
+		if (!Cast<IMainPlayer>(TargetActor) && !Cast<IMainPlayer>(GetOwner()))
+		{
+			TargetsToIgnore.Add(TargetActor);
+		}
+
 		if (!TargetsToIgnore.Contains(TargetActor))
 		{
 			TargetActor->TakeDamage(CharacterDamage, TargetAttackedEvent, GetOwner()->GetInstigatorController(), GetOwner());
 
 			TargetsToIgnore.Add(TargetActor);
 
-			if (BlockComp->Check(GetOwner<AActor>()))
+			if (Cast<IMainPlayer>(GetOwner()))
+			{
+				UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), HitParticlesTemplate, Hit.ImpactPoint);
+			}
+			else if (BlockComp->Check(GetOwner<AActor>()))
 			{
 				UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), HitParticlesTemplate, Hit.ImpactPoint);
 			}

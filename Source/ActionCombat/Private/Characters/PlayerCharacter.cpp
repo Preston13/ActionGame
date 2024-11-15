@@ -11,6 +11,7 @@
 #include "Combat/BlockComponent.h"
 #include "Characters/PlayerActionsComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Kismet/GameplayStatics.h"
 
 // Sets default values
 APlayerCharacter::APlayerCharacter()
@@ -110,5 +111,11 @@ bool APlayerCharacter::GetIsBlocking()
 void APlayerCharacter::StopCasting()
 {
 	PlayerAnim->bIsCasting = false;
+}
+
+void APlayerCharacter::PlayFootstep()
+{
+	FVector FootstepLocation = { GetActorLocation().X, GetActorLocation().Y, GetActorLocation().Z - 100 };
+	UGameplayStatics::PlaySoundAtLocation(GetWorld(), Footsteps[EFootstepType::Dirt], FootstepLocation);
 }
 

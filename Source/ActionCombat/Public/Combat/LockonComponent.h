@@ -46,6 +46,8 @@ protected:
 	UFUNCTION(BlueprintCallable)
 	void ToggleLockon(float Radius = 750.0f);
 
+	bool CheckForEnemies(float Radius);
+
 
 public:	
 	// Called every frame

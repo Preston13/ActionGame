@@ -32,36 +32,11 @@ void ULockonComponent::BeginPlay()
 
 void ULockonComponent::StartLockon(float Radius)
 {
-	FHitResult OutResult;
-	FVector CurrentLocation = OwnerRef->GetActorLocation();
-	FCollisionShape Sphere = FCollisionShape::MakeSphere(Radius);
-	FCollisionQueryParams IgnoreParams{
-		FName{TEXT("Ignore Collision Params")},
-		false,
-		OwnerRef
-	};
-
-	bool bHasFoundTarget = GetWorld()->SweepSingleByChannel(
-		OutResult, 
-		CurrentLocation,
-		CurrentLocation,
-		FQuat::Identity,
-		ECollisionChannel::ECC_GameTraceChannel1,
-		Sphere,
-		IgnoreParams
-	);
-
-	if (!bHasFoundTarget)
+	if (!CheckForEnemies(Radius))
 	{
 		return;
 	}
 
-	if (!OutResult.GetActor()->Implements<UEnemy>())
-	{
-		return;
-	}
-
-	CurrentTargetActor = OutResult.GetActor();
 	Controller->SetIgnoreLookInput(true);
 	MovementComp->bOrientRotationToMovement = false;
 	MovementComp->bUseControllerDesiredRotation = true;
@@ -93,6 +68,59 @@ void ULockonComponent::ToggleLockon(float Radius)
 	{
 		StartLockon(Radius);
 	}
+}
+
+bool ULockonComponent::CheckForEnemies(float Radius)
+{
+	TArray<FHitResult> OutResults;
+	FVector CurrentLocation = OwnerRef->GetActorLocation();
+	FCollisionShape Sphere = FCollisionShape::MakeSphere(Radius);
+	FCollisionQueryParams IgnoreParams{
+		FName{TEXT("Ignore Collision Params")},
+		false,
+		OwnerRef
+	};
+
+	bool bHasFoundTarget = GetWorld()->SweepMultiByChannel(
+		OutResults,
+		CurrentLocation,
+		CurrentLocation,
+		FQuat::Identity,
+		ECollisionChannel::ECC_GameTraceChannel1,
+		Sphere,
+		IgnoreParams
+	);
+
+	for (const FHitResult& Hit : OutResults)
+	{
+		if (!Hit.GetActor()->Implements<UEnemy>())
+		{
+			continue;
+		}
+		else if (!IsValid(CurrentTargetActor))
+		{
+			CurrentTargetActor = Hit.GetActor();
+			break;
+		}
+		else if (Hit.GetActor() != CurrentTargetActor)
+		{
+			EndLockon();
+			CurrentTargetActor = Hit.GetActor();
+			break;
+		}
+		else
+		{
+			EndLockon();
+			return false;
+		}
+	}
+
+	if (!bHasFoundTarget)
+	{
+		return false;
+	}
+
+	return true;
 }
 
 

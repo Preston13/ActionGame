@@ -6,6 +6,7 @@
 #include "GameFramework/Character.h"
 #include "Interfaces/MainPlayer.h"
 #include "Interfaces/Fighter.h"
+#include "Animations/EFootstepType.h"
 #include "PlayerCharacter.generated.h"
 
 UCLASS()
@@ -44,6 +45,9 @@ public:
 	UPROPERTY(BlueprintReadOnly)
 	class UPlayerAnimInstance* PlayerAnim;
 
+	UPROPERTY(EditAnywhere)
+	TMap<TEnumAsByte<EFootstepType>, USoundBase*> Footsteps;
+
 
 protected:
 	// Called when the game starts or when spawned
@@ -77,4 +81,7 @@ public:
 	virtual bool GetIsBlocking() override;
 
 	void StopCasting();
+
+	UFUNCTION(BlueprintCallable)
+	void PlayFootstep();
 };

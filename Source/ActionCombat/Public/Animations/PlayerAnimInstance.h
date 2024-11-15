@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Animation/AnimInstance.h"
+#include "Animations/EFootstepType.h"
 #include "PlayerAnimInstance.generated.h"
 
 /**
