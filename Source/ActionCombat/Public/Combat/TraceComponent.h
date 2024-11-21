@@ -32,6 +32,9 @@ class ACTIONCOMBAT_API UTraceComponent : public UActorComponent
 	UPROPERTY(EditAnywhere)
 	UParticleSystem* HitParticlesTemplate;
 
+	UPROPERTY(EditAnywhere)
+	USoundBase* HitSound;
+
 public:	
 	// Sets default values for this component's properties
 	UTraceComponent();

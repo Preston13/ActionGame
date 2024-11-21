@@ -134,10 +134,12 @@ void UTraceComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActor
 
 			if (Cast<IMainPlayer>(GetOwner()))
 			{
+				UGameplayStatics::PlaySoundAtLocation(GetWorld(), HitSound, Hit.ImpactPoint);
 				UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), HitParticlesTemplate, Hit.ImpactPoint);
 			}
 			else if (BlockComp->Check(GetOwner<AActor>()))
 			{
+				UGameplayStatics::PlaySoundAtLocation(GetWorld(), HitSound, Hit.ImpactPoint);
 				UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), HitParticlesTemplate, Hit.ImpactPoint);
 			}
 		}

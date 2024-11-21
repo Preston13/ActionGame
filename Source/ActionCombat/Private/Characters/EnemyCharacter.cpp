@@ -9,6 +9,7 @@
 #include "BehaviorTree/BlackboardComponent.h"
 #include "Characters/StatsComponent.h"
 #include "Combat/CombatComponent.h"
+#include "Characters/PlayerCharacter.h"
 
 
 // Sets default values
@@ -32,6 +33,8 @@ void AEnemyCharacter::BeginPlay()
 
 	BlackboardComp->SetValueAsEnum(TEXT("CurrentState"), InitialState);
 	
+	GetWorld()->GetFirstPlayerController()->GetPawn<APlayerCharacter>()
+		->StatsComp->OnZeroHealthDelegate.AddDynamic(this, &AEnemyCharacter::HandlePlayerDeath);
 }
 
 // Called every frame
@@ -99,5 +102,10 @@ float AEnemyCharacter::GetDamage()
 float AEnemyCharacter::GetAnimationDuration()
 {
 	return CombatComp->AnimDuration;
+}
+
+void AEnemyCharacter::HandlePlayerDeath()
+{
+	BlackboardComp->SetValueAsEnum(TEXT("CurrentState"), EEnemyState::GameOver);
 }
 

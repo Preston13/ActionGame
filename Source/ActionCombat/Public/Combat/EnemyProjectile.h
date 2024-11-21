@@ -19,6 +19,9 @@ class ACTIONCOMBAT_API AEnemyProjectile : public AActor
 
 	UPROPERTY(EditAnywhere)
 	bool bIsPlayerProjectile = false;
+
+	UPROPERTY(EditAnywhere)
+	USoundBase* ImpactSound;
 	
 public:	
 	// Sets default values for this actor's properties

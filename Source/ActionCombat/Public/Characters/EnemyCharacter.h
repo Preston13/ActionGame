@@ -62,4 +62,7 @@ public:
 
 	virtual float GetAnimationDuration() override;
 
+	UFUNCTION()
+	void HandlePlayerDeath();
+
 };

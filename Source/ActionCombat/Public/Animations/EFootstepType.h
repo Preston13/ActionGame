@@ -7,6 +7,7 @@
 UENUM(BlueprintType)
 enum EFootstepType
 {
+	Default UMETA(DisplayName = "None Selected"),
 	Dirt UMETA(DisplayName = "Dirt"),
 	Wood UMETA(DisplayName = "Wood")
 };

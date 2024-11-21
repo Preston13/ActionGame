@@ -10,6 +10,9 @@
 #include "BrainComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Interfaces/MainPlayer.h"
+#include "Kismet/GameplayStatics.h"
+#include "Sound/AmbientSound.h"
+#include "Components/AudioComponent.h"
 
 // Sets default values
 ABossCharacter::ABossCharacter()
@@ -34,6 +37,22 @@ void ABossCharacter::BeginPlay()
 
 	GetWorld()->GetFirstPlayerController()->GetPawn<APlayerCharacter>()
 		->StatsComp->OnZeroHealthDelegate.AddDynamic(this, &ABossCharacter::HandlePlayerDeath);
+
+	TSubclassOf<AAmbientSound> AmbientSound;
+	AmbientSound = AAmbientSound::StaticClass();
+	TArray<AActor*> MusicArray;
+	UGameplayStatics::GetAllActorsOfClassWithTag(GetWorld(), AmbientSound, "Music", MusicArray);
+
+	if (!MusicArray.IsEmpty())
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Music Found"));
+		BackgroundMusic = Cast<AAmbientSound>(MusicArray[0])->GetComponentByClass<UAudioComponent>();
+		PreviousMusic = BackgroundMusic->GetSound();
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("No Music :')"));
+	}
 }
 
 // Called every frame
@@ -59,6 +78,13 @@ void ABossCharacter::DetectPawn(APawn* PawnDetected, APawn* TargetPawn)
 	}
 
 	BlackboardComp->SetValueAsEnum(TEXT("CurrentState"), EEnemyState::Range);
+
+	if (BackgroundMusic)
+	{
+		BackgroundMusic->Stop();
+		BackgroundMusic->SetSound(BossMusic);
+		BackgroundMusic->Play();
+	}
 }
 
 float ABossCharacter::GetDamage()
@@ -105,16 +131,28 @@ void ABossCharacter::HandleDeath()
 	if (PlayerRef)
 	{
 		PlayerRef->EndLockonWithActor(this);
-	}
+	}	
 }
 
 void ABossCharacter::FinishDeathAnim()
 {
+	StopMusic();
 	Destroy();
 }
 
 void ABossCharacter::LeaveCombat()
 {
+	StopMusic();
 	StatsComp->LeaveCombat();
+}
+
+void ABossCharacter::StopMusic()
+{
+	if (BackgroundMusic)
+	{
+		BackgroundMusic->Stop();
+		BackgroundMusic->SetSound(PreviousMusic);
+		BackgroundMusic->Play();
+	}
 }
 

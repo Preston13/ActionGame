@@ -25,6 +25,13 @@ class ACTIONCOMBAT_API ABossCharacter : public ACharacter, public IEnemy, public
 
 	class AAIController* ControllerRef;
 
+	UPROPERTY(EditAnywhere)
+	USoundBase* BossMusic;
+
+	USoundBase* PreviousMusic;
+
+	class UAudioComponent* BackgroundMusic;
+
 public:
 	// Sets default values for this character's properties
 	ABossCharacter();
@@ -70,5 +77,7 @@ public:
 
 	UFUNCTION()
 	virtual void LeaveCombat() override;
+
+	void StopMusic();
 
 };

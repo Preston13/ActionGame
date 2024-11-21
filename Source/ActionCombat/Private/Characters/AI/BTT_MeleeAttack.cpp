@@ -70,6 +70,7 @@ UBTT_MeleeAttack::UBTT_MeleeAttack()
 {
 	MoveDelegate.BindUFunction(this, "FinishAttackTask");
 	bNotifyTick = true;
+	bCreateNodeInstance = true;
 }
 
 void UBTT_MeleeAttack::FinishAttackTask()

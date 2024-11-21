@@ -5,6 +5,7 @@
 #include "Particles/ParticleSystemComponent.h"
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "Components/SphereComponent.h"
+#include "Kismet/GameplayStatics.h"
 
 // Sets default values
 AEnemyProjectile::AEnemyProjectile()
@@ -49,6 +50,7 @@ void AEnemyProjectile::HandleBeginOverlap(AActor* OtherActor)
 
 	FDamageEvent TargetAttackedEvent;
 	PawnRef->TakeDamage(Damage, TargetAttackedEvent, PawnRef->GetController(), this);
+	UGameplayStatics::PlaySoundAtLocation(GetWorld(), ImpactSound, OtherActor->GetActorLocation());
 }
 
 void AEnemyProjectile::DestroyProjectile()
