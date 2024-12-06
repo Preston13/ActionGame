@@ -113,9 +113,3 @@ void APlayerCharacter::StopCasting()
 	PlayerAnim->bIsCasting = false;
 }
 
-void APlayerCharacter::PlayFootstep()
-{
-	FVector FootstepLocation = { GetActorLocation().X, GetActorLocation().Y, GetActorLocation().Z - 100 };
-	UGameplayStatics::PlaySoundAtLocation(GetWorld(), Footsteps[EFootstepType::Dirt], FootstepLocation);
-}
-

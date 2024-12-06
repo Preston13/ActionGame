@@ -6,6 +6,8 @@
 #include "Kismet/KismetMathLibrary.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "Interfaces/MainPlayer.h"
+#include "Characters/PlayerCharacter.h"
+#include "Animations/PlayerAnimInstance.h"
 
 // Sets default values for this component's properties
 UCombatComponent::UCombatComponent()
@@ -35,6 +37,8 @@ void UCombatComponent::ComboAttack()
 	}
 	
 	bCanAttack = false;
+	UPlayerAnimInstance* PlayerAnim = Cast<APlayerCharacter>(CharacterRef)->PlayerAnim;
+	PlayerAnim->bIsBlocking = false;
 
 	CharacterRef->PlayAnimMontage(AttackAnimations[ComboCounter]);
 

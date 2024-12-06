@@ -7,8 +7,12 @@
 #include "Math/Color.h"
 #include "Interfaces/Fighter.h"
 #include "Interfaces/MainPlayer.h"
+#include "Interfaces/Enemy.h"
 #include "Kismet/GameplayStatics.h"
 #include "Combat/BlockComponent.h"
+#include "Interfaces/Interactable.h"
+#include "Characters/EEnemyState.h"
+#include "BehaviorTree/BlackboardComponent.h"
 
 
 // Sets default values for this component's properties
@@ -35,13 +39,16 @@ void UTraceComponent::BeginPlay()
 // Called every frame
 void UTraceComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
-	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-
+	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);	
+	
 	if (!bIsAttacking)
 	{
 		return;
 	}
 
+	IMainPlayer* MainPlayerRef = Cast<IMainPlayer>(GetOwner());
+
+	// Trace for attacks
 	TArray<FHitResult> AllResults;
 
 	for (const FTraceSockets Socket : Sockets)
@@ -51,17 +58,9 @@ void UTraceComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActor
 		FQuat ShapeRotation = SkeletalComp->GetSocketQuaternion(Socket.Rotation);
 
 		float BoxCollisionLength = FVector::Distance(StartSocketLocation, EndSocketLocation);
-		IMainPlayer* MainPlayerRef = Cast<IMainPlayer>(GetOwner());
 
 		FVector BoxCollisionSize = FVector::ZeroVector;
-		if (MainPlayerRef)	//Player character model's socket rotation messes up the rotation, so calculate box size differently
-		{
-			BoxCollisionSize = FVector(BoxCollisionHeight, BoxCollisionLength, BoxCollisionWidth);
-		}
-		else
-		{
-			BoxCollisionSize = FVector(BoxCollisionHeight, BoxCollisionWidth, BoxCollisionLength);
-		}
+		BoxCollisionSize = FVector(BoxCollisionHeight, BoxCollisionWidth, BoxCollisionLength);
 		BoxCollisionSize /= 2;
 		FCollisionShape Box = FCollisionShape::MakeBox(BoxCollisionSize);
 		TArray<FHitResult> OutResults;
@@ -132,15 +131,24 @@ void UTraceComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActor
 
 			TargetsToIgnore.Add(TargetActor);
 
-			if (Cast<IMainPlayer>(GetOwner()))
+			if (GetOwner()->Implements<UMainPlayer>())
 			{
 				UGameplayStatics::PlaySoundAtLocation(GetWorld(), HitSound, Hit.ImpactPoint);
 				UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), HitParticlesTemplate, Hit.ImpactPoint);
 			}
 			else if (BlockComp->Check(GetOwner<AActor>()))
-			{
+			{				
 				UGameplayStatics::PlaySoundAtLocation(GetWorld(), HitSound, Hit.ImpactPoint);
 				UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), HitParticlesTemplate, Hit.ImpactPoint);
+			}
+			else
+			{
+				IEnemy* EnemyRef = Cast<IEnemy>(GetOwner());
+				if (EnemyRef)
+				{
+					class UBlackboardComponent* BlackboardComp = EnemyRef->BlackboardComp;
+					BlackboardComp->SetValueAsEnum(TEXT("CurrentState"), EEnemyState::Knockback);
+				}
 			}
 		}
 	}

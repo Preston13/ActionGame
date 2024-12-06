@@ -7,6 +7,7 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Characters/PlayerCharacter.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "Interfaces/Interactable.h"
 
 // Sets default values for this component's properties
 UPlayerActionsComponent::UPlayerActionsComponent()
@@ -100,5 +101,108 @@ void UPlayerActionsComponent::Dodge()
 void UPlayerActionsComponent::FinishDodgeAnim()
 {
 	bIsDodgeActive = false;
+}
+
+void UPlayerActionsComponent::Interact()
+{
+	// Trace for interactable actors		
+	if (IPlayerRef)
+	{
+		TArray<FHitResult> OutResults;
+		FVector CurrentLocation = GetOwner()->GetActorLocation();
+		FVector EndLocation = { CurrentLocation.X, CurrentLocation.Y, CurrentLocation.Z + 1 };
+		FCollisionShape Sphere = FCollisionShape::MakeSphere(100);
+		FCollisionQueryParams IgnoreParams{
+			FName{TEXT("Ignore Collision Params")},
+			false,
+			GetOwner()
+		};
+
+		bool bHasFoundTarget = GetWorld()->SweepMultiByChannel(
+			OutResults,
+			CurrentLocation,
+			EndLocation,
+			FQuat::Identity,
+			ECollisionChannel::ECC_GameTraceChannel2,
+			Sphere,
+			IgnoreParams
+		);
+
+		if (!bHasFoundTarget)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("Nothing"));
+			return;
+		}
+
+		for (const FHitResult& Hit : OutResults)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("interactable?"));
+			IInteractable* InteractableActor = Cast<IInteractable>(Hit.GetActor());
+			if (!InteractableActor)
+			{
+				UE_LOG(LogTemp, Warning, TEXT("Not interactable"));
+				continue;
+			}
+			else
+			{
+				UE_LOG(LogTemp, Warning, TEXT("Interact"));
+				InteractableActor->Interact(Cast<APlayerCharacter>(GetOwner()));
+			}
+		}
+
+		/*FVector OwnerLocation = GetOwner()->GetActorLocation();
+		FVector StartLocation = { OwnerLocation.X, OwnerLocation.Y, OwnerLocation.Z - 50 };
+		FVector EndLocation = { OwnerLocation.X, OwnerLocation.Y, OwnerLocation.Z + 100 };
+		FQuat TraceRotation = GetOwner()->GetActorRotation().Quaternion();
+
+		float TraceBoxLength = FVector::Distance(StartLocation, EndLocation);
+
+		FVector TraceBoxSize = FVector::ZeroVector;
+		TraceBoxSize = FVector(200, 100, TraceBoxLength);
+		TraceBoxSize /= 2;
+		FCollisionShape Box = FCollisionShape::MakeBox(TraceBoxSize);
+		FHitResult HitResult;
+		FCollisionQueryParams CollisionParams;
+		CollisionParams.AddIgnoredActor(GetOwner());
+		bool bHit = GetWorld()->SweepSingleByChannel(
+			HitResult,
+			StartLocation,
+			EndLocation,
+			TraceRotation,
+			ECollisionChannel::ECC_GameTraceChannel2,
+			Box,
+			CollisionParams
+		);
+
+		if (bDebugMode)
+		{
+			FVector CenterPoint = UKismetMathLibrary::VLerp(StartLocation, EndLocation, 0.5f);
+			UKismetSystemLibrary::DrawDebugBox(
+				GetWorld(),
+				CenterPoint,
+				Box.GetExtent(),
+				bHit ? FLinearColor::Green : FLinearColor::Red,
+				TraceRotation.Rotator(),
+				.0167f,
+				2.0f
+			);
+		}
+
+		if (!bHit)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("No hit"));
+			return;
+		}
+
+		UE_LOG(LogTemp, Warning, TEXT("%s"), *HitResult.GetActor()->GetName());
+
+		IInteractable* InteractableActor = Cast<IInteractable>(HitResult.GetActor());
+		if (!InteractableActor)
+		{
+			return;
+		}
+
+		InteractableActor->Interact(Cast<APlayerCharacter>(GetOwner())); */
+	}
 }
 

@@ -20,8 +20,6 @@ class ACTIONCOMBAT_API AEnemyCharacter : public ACharacter, public IEnemy, publi
 	UPROPERTY(EditAnywhere)
 	TEnumAsByte<EEnemyState> InitialState;
 
-	class UBlackboardComponent* BlackboardComp;
-
 	class AAIController* ControllerRef;
 
 public:

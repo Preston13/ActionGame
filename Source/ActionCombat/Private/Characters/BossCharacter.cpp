@@ -45,13 +45,8 @@ void ABossCharacter::BeginPlay()
 
 	if (!MusicArray.IsEmpty())
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Music Found"));
 		BackgroundMusic = Cast<AAmbientSound>(MusicArray[0])->GetComponentByClass<UAudioComponent>();
 		PreviousMusic = BackgroundMusic->GetSound();
-	}
-	else
-	{
-		UE_LOG(LogTemp, Warning, TEXT("No Music :')"));
 	}
 }
 

@@ -45,8 +45,8 @@ public:
 	UPROPERTY(BlueprintReadOnly)
 	class UPlayerAnimInstance* PlayerAnim;
 
-	UPROPERTY(EditAnywhere)
-	TMap<TEnumAsByte<EFootstepType>, USoundBase*> Footsteps;
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
+	bool bHasFire = false;
 
 
 protected:
@@ -81,7 +81,4 @@ public:
 	virtual bool GetIsBlocking() override;
 
 	void StopCasting();
-
-	UFUNCTION(BlueprintCallable)
-	void PlayFootstep();
 };

@@ -35,6 +35,19 @@ void AEnemyProjectile::HandleBeginOverlap(AActor* OtherActor)
 {
 	APawn* PawnRef = Cast<APawn>(OtherActor);
 
+	if (!IsValid(PawnRef))
+	{
+		FindComponentByClass<UParticleSystemComponent>()->SetTemplate(HitTemplate);
+		FindComponentByClass<UProjectileMovementComponent>()->StopMovementImmediately();
+
+		FTimerHandle DeathTimerHandle;
+		GetWorldTimerManager().SetTimer(DeathTimerHandle, this, &AEnemyProjectile::DestroyProjectile, 0.5f);
+
+		FindComponentByClass<USphereComponent>()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
+		UGameplayStatics::PlaySoundAtLocation(GetWorld(), ImpactSound, OtherActor->GetActorLocation());
+	}
+
 	if ((!PawnRef->IsPlayerControlled() && !bIsPlayerProjectile) || (PawnRef->IsPlayerControlled() && bIsPlayerProjectile))
 	{
 		return;

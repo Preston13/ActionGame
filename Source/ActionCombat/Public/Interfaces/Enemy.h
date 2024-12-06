@@ -27,4 +27,6 @@ public:
 
 	UFUNCTION(BlueprintImplementableEvent)
 	void OnDeselect();
+
+	class UBlackboardComponent* BlackboardComp;
 };

@@ -18,8 +18,6 @@ class ACTIONCOMBAT_API ABossCharacter : public ACharacter, public IEnemy, public
 	UPROPERTY(EditAnywhere)
 	TEnumAsByte<EEnemyState> InitialState;
 
-	class UBlackboardComponent* BlackboardComp;
-
 	UPROPERTY(EditAnywhere)
 	UAnimMontage* DeathAnim;
 

@@ -80,5 +80,8 @@ public:
 
 	UFUNCTION()
 	void FinishDodgeAnim();
+
+	UFUNCTION(BlueprintCallable)
+	void Interact();
 		
 };
